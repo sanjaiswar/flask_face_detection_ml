@@ -6,4 +6,5 @@ Students those who are working on data science projects that are based on python
 This project covers all basic setup and methods to work with web based projects, so that you can deploy your project and demonstrate live during your viva or interviews
 
 Email: sanjaiswar@gmail.com
+
 Linkedin: linkedin.com/in/sanjay-jaiswar-8944a426
