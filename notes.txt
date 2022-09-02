@@ -1,0 +1,17 @@
+Using Flask-SQLAlchemy for template engine and ORM
+Using Bootstrap for Web design
+
+1) Install Flask
+
+pip install flask
+
+2) Install Flask-SQLAlchemy
+
+pip install Flask-SQLAlchemy
+
+3) Create App.py 
+
+4) Migrating database
+
+>> from App import db 
+>> db.create_all()

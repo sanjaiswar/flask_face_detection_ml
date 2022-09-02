@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<div class="container">
+    {% include 'nav.html' %}
+</div>
+<div class="container">
+    <table class="table-dark table table-bordered table-hover my-2">
+        <tr class="bg-primary"><td>No</td><td>Name</td><td>Email</td><td>Phone</td><td>Profile Pic</td></td><td>Action</td></tr>
+        {% 
+            for emp in employees
+        %}
+        <tr>
+            <td>{{loop.index}}</td>
+            <td>{{emp.name}}</td>
+            <td>{{emp.email}}</td>
+            <td>{{emp.phone}}</td>
+            <td><img src="/static/uploads/{{emp.pic}}" style="width:60px;"></td>
+            <td>
+                <a class="btn btn-sm btn-warning" href="/edit-emp/{{emp.id}}">Edit</a>&nbsp;
+                <a class="btn btn-sm btn-danger" href="/delete-emp/{{emp.id}}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

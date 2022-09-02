@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<div class="container">
+    {% include 'nav.html' %}
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="bg-dark my-3 text-white text-center py-2">EVALUATION RESULT</h3>
+            <form class="my-3" method="post" action="{{url_for('evaluate')}}">
+                <table class="table table-dark ">
+                    <tr>
+                        <td>Standard Answer</td>
+                        <td>{{ act_ans }}</td>
+                    </tr>
+                    <tr>
+                        <td>Your Answer(max 300 words)</td>
+                        <td>
+                            <textarea class="form-control" rows="6" maxlength="500" name="cand_ans" required>{{cand_ans}}</textarea>
+                        </td>
+                    </tr>
+                   
+                    <tr>
+                        <td colspan="2">
+                            <ul>
+                                <li><h3>RESULT STATISTICS</h3></li>
+                                {% for allstats in stats_list %}
+                                <li>{{allstats}}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
