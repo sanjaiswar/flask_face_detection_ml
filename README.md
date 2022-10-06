@@ -11,15 +11,21 @@ Create a seperate folder called datasets in project folder
 
 Create reg_face.html, capture_preview.html and detect_face.html 
 
-I have created following routes and functions 
+I have defined following routes and functions 
+
 regFace()
+
 capturePreview()
+
 video_feed()
+
 createDataset()
 
 detectFace()
 detect_preview()
+
 detectDataset()
+
 Email: sanjaiswar@gmail.com
 
 Linkedin: linkedin.com/in/sanjay-jaiswar-8944a426
