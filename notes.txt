@@ -15,3 +15,19 @@ pip install Flask-SQLAlchemy
 
 >> from App import db 
 >> db.create_all()
+
+5) For face detection I have used haarcascade frontalface dataset
+
+6) Create a seperate folder called datasets in project folder
+
+7) Create reg_face.html, capture_preview.html and detect_face.html 
+
+8) I have created following routes and functions 
+regFace()
+capturePreview()
+video_feed()
+createDataset()
+
+detectFace()
+detect_preview()
+detectDataset()

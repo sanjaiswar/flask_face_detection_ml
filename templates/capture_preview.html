@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<div class="container">
+    {% include 'nav.html' %}
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-3 text-center">
+            <h3 class="bg-dark my-1 text-white text-center py-2">{{ name|upper }} FACE TO CAMERA</h3>
+            <div>
+                <img src="{{ url_for('video_feed',name=name) }}" width="100%">
+            </div>
+            <a href="/" class="btn btn-success my-2">DONE</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

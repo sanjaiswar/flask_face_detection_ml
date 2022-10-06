@@ -1,5 +1,7 @@
 import os,io,base64
-from flask import Response, send_file
+from pickle import TRUE
+from flask import Response,session, send_file
+from flask_session import Session
 from flask import Flask,render_template,request,redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import false
@@ -10,6 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import re
+import cv2
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -17,10 +20,13 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app=Flask(__name__)
 app.secret_key='sanjaiswar'
-app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:''@localhost/flaskdb'
+app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:root@localhost/flaskdb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=false
 db=SQLAlchemy(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 class Employee(db.Model):
     id=db.Column(db.Integer,primary_key=True)
@@ -320,6 +326,140 @@ def getMeaningfulWords(ws,actans,candans,gen_words):
         print(mw.strip())
     stats_list.append(f"Total exact match lines score: {match_count}")
     return stats_list
+
+@app.route('/reg-face')
+def regFace():
+    return render_template('reg_face.html')
+
+@app.route('/capture-preview',methods=['GET', 'POST'])
+def capturePreview():
+    if request.method=='POST':
+        name = request.form['name'] 
+    return render_template('capture_preview.html',name=name)
+
+@app.route('/frame_capture/<name>')
+def video_feed(name):
+    return Response(createDataset(name), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+def createDataset(name):
+    haar_file = 'haarcascade_frontalface_default.xml'
+    sub_data=name
+    # All the faces data will be
+    #  present this folder
+    datasets = 'datasets' 
+    
+    # These are sub data sets of folder,
+    # for my faces I've used my name you can
+    # change the label here 
+    
+    path = os.path.join(datasets, sub_data)
+    if not os.path.isdir(path):
+        os.mkdir(path)
+    
+    # defining the size of images
+    (width, height) = (130, 100)   
+    
+    #'0' is used for my webcam,
+    # if you've any other camera
+    #  attached use '1' like this
+    face_cascade = cv2.CascadeClassifier(haar_file)
+    webcam = cv2.VideoCapture(0)
+    
+    # The program loops until it has 30 images of the face.
+    count = 1
+    while count<41:
+        (_, im) = webcam.read()
+        gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, 1.3, 4)
+        for (x, y, w, h) in faces:
+            cv2.rectangle(im, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            face = gray[y:y + h, x:x + w]
+            face_resize = cv2.resize(face, (width, height))
+            cv2.imwrite('% s/% s.png' % (path, count), face_resize)
+        count += 1
+
+        # cv2.imshow('OpenCV', im)
+        # key = cv2.waitKey(10)
+        # if key == 27:
+        #     break
+
+        ret, buffer = cv2.imencode('.jpg', im)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+           
+@app.route('/detect-face')
+def detectFace():
+    return render_template('detect_face.html')
+
+@app.route('/detect-preview')
+def detect_preview():
+    return Response(detectDataset(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+def detectDataset():
+    size = 4
+    haar_file = 'haarcascade_frontalface_default.xml'
+    datasets = 'datasets'
+    
+    # Part 1: Create fisherRecognizer
+    print('Recognizing Face Please Be in sufficient Lights...')
+    
+    # Create a list of images and a list of corresponding names
+    (images, labels, names, id) = ([], [], {}, 0)
+    for (subdirs, dirs, files) in os.walk(datasets):
+        for subdir in dirs:
+            names[id] = subdir
+            subjectpath = os.path.join(datasets, subdir)
+            for filename in os.listdir(subjectpath):
+                path = subjectpath + '/' + filename
+                label = id
+                images.append(cv2.imread(path, 0))
+                labels.append(int(label))
+            id += 1
+    (width, height) = (130, 100)
+    
+    # Create a Numpy array from the two lists above
+    (images, labels) = [np.array(lis) for lis in [images, labels]]
+    
+    # OpenCV trains a model from the images
+    # NOTE FOR OpenCV2: remove '.face'
+    model = cv2.face.LBPHFaceRecognizer_create()
+    model.train(images, labels)
+    
+    # Part 2: Use fisherRecognizer on camera stream
+    face_cascade = cv2.CascadeClassifier(haar_file)
+    webcam = cv2.VideoCapture(0)
+    while True:
+        (_, im) = webcam.read()
+        gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+        for (x, y, w, h) in faces:
+            cv2.rectangle(im, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            face = gray[y:y + h, x:x + w]
+            face_resize = cv2.resize(face, (width, height))
+            # Try to recognize the face
+            prediction = model.predict(face_resize)
+            cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 3)
+    
+            if prediction[1]<500:
+    
+                cv2.putText(im, '% s - %.0f' %
+        (names[prediction[0]], prediction[1]), (x-10, y-10),
+        cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0))
+            else:
+                cv2.putText(im, 'not recognized',
+        (x-10, y-10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0))
+    
+        # cv2.imshow('OpenCV', im)
+        
+        # key = cv2.waitKey(10)
+        # if key == 27:
+        #     break   
+        ret, buffer = cv2.imencode('.jpg', im)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
 
 if __name__ =="__main__":
     app.run(debug=True)
