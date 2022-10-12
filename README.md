@@ -1,5 +1,4 @@
 # flask_face_detection_ml
-![image](https://user-images.githubusercontent.com/45494013/195300562-95b3f787-ce29-487a-bb7a-b96deb27c5a0.png)
 
 A basic application on python flask framework to demonstrate an CRUD application, working with image file, MySql database, SQLAlchemy, and data visualization using matplotlib, seaborn and numpy. This project also demonstrate how to perform some operations on text data like matching text by words, sentence and paragraph.
 
