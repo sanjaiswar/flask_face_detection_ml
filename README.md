@@ -1,4 +1,4 @@
-# Face Detection Application in Python Using Flask Framework And Python Library For Machine Learning Like OpenCV
+# Face detection application in Python using Flask framework and Python library for Machine Learning like OpenCV
 
 A basic application on python flask framework to demonstrate an CRUD application, working with image file, MySql database, SQLAlchemy, and data visualization using matplotlib, seaborn and numpy. This project also demonstrate how to perform some operations on text data like matching text by words, sentence and paragraph.
 
